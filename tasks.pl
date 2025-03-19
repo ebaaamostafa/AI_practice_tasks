@@ -50,18 +50,30 @@ num_matches_of_team(_,Count,Count,_).
 
 
 
-%task 7 *not completed*
+%task 7 
 
-%max of two elements
-max(X,Y,R) :-
-    X > Y;
-    X = Y,
-    R is X.
+% max of two elements (modified)
+max(X,Y,X) :- % if x > y, make x to be the result
+    X > Y.
 
-max(X,Y,R) :-
-    X < Y,
-    R is Y.
+max(X,Y,X) :-
+    X = Y.
+
+max(X,Y,Y) :- % otherwise
+    X < Y.
+
+
+% max of a pair of [Position frequence, Position].
+max_list([X,T1],[Y,_],[X,T1]) :-
+    X > Y.
+         
+max_list([X,T1],[Y,_],[X,T1]) :-
+    X = Y.
+
+max_list([X,_],[Y,T2],[Y,T2]) :-
+    X < Y.
     
+
 count_occurrences(_,[],0). %counts occerrences of an element in a list
 
 % if the first element is the target --> increament by 1
@@ -74,28 +86,50 @@ count_occurrences(X,[_|T],Result) :-
     count_occurrences(X,T,Result).
 
 
+
 % predicate which get a list of all the position (with there duplicates with different players)
 get_occurrences_list(Team,Result) :-
     get_occurrences_list(Team,[],[],Result).
     
 get_occurrences_list(Team,PlayerList,PositionList,ResultList) :-
-    player(Player,Team,Position), % get any player and his position in the targe team
+    player(Player,Team,Position), % get any player and his position in the target team
     \+ member_in_list(Player,PlayerList),
     get_occurrences_list(Team,[Player|PlayerList],[Position|PositionList],ResultList).
 
-get_occurrences_list(_,_,ResultList,ResultList).
+get_occurrences_list(_,_,ResultList,ResultList). % base case: there is no players left --> return PositionList
+
 
 
 % get a list of [frequency of position, position]
 make_frequency_list(OccList,Result) :-
     make_frequency_list(OccList,[],Result).
 
-make_frequency_list([],ResultList,ResultList).
+make_frequency_list([],ResultList,ResultList). %base case: emptyList --> return FreqList
 
-make_frequency_list([First|OccList],FreqList,ResultList) :-
-    \+ member_in_list([_,First],FreqList),
-    count_occurrences(First,[First|OccList],Count),
-    make_frequency_list(OccList,[[Count,First]|FreqList],ResultList).
+%FreqList: a list of [Position Frequency, Position] to be returned
+%OccList: occurrence list which have the duplicates
+make_frequency_list([Pos|OccList],FreqList,ResultList) :-
+    \+ member_in_list([_,Pos],FreqList), % if this position hasn't been counted before, continue and count
+    count_occurrences(Pos,[Pos|OccList],Freq),
+    make_frequency_list(OccList,[[Freq,Pos]|FreqList],ResultList).
 
-make_frequency_list([_|OccList],FreqList,ResultList) :-
+make_frequency_list([_|OccList],FreqList,ResultList) :- % else if it has been counted, continue with the remaining list
     make_frequency_list(OccList,FreqList,ResultList).
+
+
+
+% after I got the frequence list, I neet to get the max record of them
+get_max_record([[X,Y]],[X,Y]). % base case: one element --> return it
+
+get_max_record([H|T],Result) :-
+    get_max_record(T,NewResult),
+    max_list(H,NewResult,Result). % compare the first element with the remaining and return the max
+
+
+
+%main predicate: combine all the above to reach our purpose
+most_common_position_in_team(Team, Pos) :-
+    get_occurrences_list(Team,List), % get the Position list from the team
+    make_frequency_list(List,ResultList), % pass the position list to get the frequency list
+    get_max_record(ResultList,[_,Pos]). % pass the frequency list to get the max_record, and takes the position only
+

@@ -1,4 +1,4 @@
-:-consult(league_data).
+:-consult(leage_data).
 
 % check for an element if it is a member of a list
 % usually using it to commulate iterated elements and prevent duplicates and infinite recursion
@@ -24,6 +24,8 @@ team_count_by_country(_,Count,Count,_). % base case: no team match --> return co
 
 
 % task 3
+% Find the team with the most championship titles
+%
 all_wins(List) :-
     findall(Wins, team(_, _, Wins), List).
 
@@ -58,8 +60,20 @@ num_matches_of_team(Team, Count, Result,AccList) :-
 num_matches_of_team(_,Count,Count,_).
 
 
+% task 6
+% Find the top goal scorer in the tournament
 
+all_goals(List) :-
+    findall(Goals, goals(_, Goals), List).
 
+max_goals(Max) :-
+    all_goals(List),
+    max_list(List, Max).
+
+top_scorer(P) :-
+    max_wins(Max),
+    goals(P, G),
+    G =:= Max.
 
 %task 7
 
@@ -143,4 +157,5 @@ most_common_position_in_team(Team, Pos) :-
     get_occurrences_list(Team,List), % get the Position list from the team
     make_frequency_list(List,ResultList), % pass the position list to get the frequency list
     get_max_record(ResultList,[_,Pos]). % pass the frequency list to get the max_record, and takes the position only
+
 

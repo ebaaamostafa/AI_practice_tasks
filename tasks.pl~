@@ -1,4 +1,4 @@
-:-consult(leage_data).
+:-consult(league_data).
 
 % check for an element if it is a member of a list
 % usually using it to commulate iterated elements and prevent duplicates and infinite recursion

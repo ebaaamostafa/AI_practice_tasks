@@ -1,11 +1,13 @@
 %:-consult(league_data).
 
+
 % check for an element if it is a member of a list
 % usually using it to commulate iterated elements and prevent duplicates and infinite recursion
 member_in_list(X,[X|_]).
 
 member_in_list(X,[_|T]) :-
     member_in_list(X,T).
+
 
 % task 1
 
@@ -17,7 +19,8 @@ find_players_in_team(Team,Member_list,L):-
     \+ member_in_list(Player,Member_list),
     New_list = [Player | Member_list],!,
     find_players_in_team(Team,New_list,L).
-find_players_in_team(_,L,L):- !.
+find_players_in_team(_,L,L).
+
 
 
 % task 2
@@ -29,10 +32,25 @@ team_count_by_country(Country,Count,Result,AccList):-
     \+ member_in_list(Team,AccList), % check if it have been already proccessed
     NewResult is Result + 1,
     team_count_by_country(Country, Count, NewResult,[Team|AccList]). % append the team to accumlate list
+    team_count_by_country(_,Count,Count,_). % base case: no team match --> return count
 
-team_count_by_country(_,Count,Count,_):- !. % base case: no team match --> return count
 
+% task 3
+% Find the team with the most championship titles
+%
+all_wins(List) :-
+    findall(Wins, team(_, _, Wins), List).
 
+max_wins(Max) :-
+    all_wins(List),
+    max_list(List, Max).
+
+most_successful_team(T) :-
+    max_wins(Max),
+
+    team(T, _, Wins),
+    Wins =:= Max,
+    !.
 
 % task 4
 matches_of_team(Team, L) :-
@@ -52,8 +70,6 @@ find_matches_of_team(Team, Matches_list, L) :-
     !,
     find_matches_of_team(Team, NewList, L).
 find_matches_of_team(_, L, L):- !.
-
-
 
 % task 5
 %similar logic to task 2
@@ -75,12 +91,23 @@ num_matches_of_team(Team, Count, Result,AccList) :-
 
 num_matches_of_team(_,Count,Count,_).
 
+% task 6
+% Find the top goal scorer in the tournament
 
+all_goals(List) :-
+    findall(Goals, goals(_, Goals), List).
 
+max_goal(Max) :-
+    all_goals(List),
+    max_list(List, Max).
 
+top_scorer(P) :-
+    max_goal(Max),
+    goals(P, G),
+    G =:= Max,
+    !.
 
-%task 7 
-
+%task 7
 % max of two elements (modified)
 max(X,Y,X) :- % if x > y, make x to be the result
     X > Y.
@@ -95,13 +122,13 @@ max(X,Y,Y) :- % otherwise
 % max of a pair of [Position frequence, Position].
 max_list([X,T1],[Y,_],[X,T1]) :-
     X > Y.
-         
+
 max_list([X,T1],[Y,_],[X,T1]) :-
     X = Y.
 
 max_list([X,_],[Y,T2],[Y,T2]) :-
     X < Y.
-    
+
 
 count_occurrences(_,[],0). %counts occerrences of an element in a list
 
@@ -119,7 +146,7 @@ count_occurrences(X,[_|T],Result) :-
 % predicate which get a list of all the position (with there duplicates with different players)
 get_occurrences_list(Team,Result) :-
     get_occurrences_list(Team,[],[],Result).
-    
+
 get_occurrences_list(Team,PlayerList,PositionList,ResultList) :-
     player(Player,Team,Position), % get any player and his position in the target team
     \+ member_in_list(Player,PlayerList),

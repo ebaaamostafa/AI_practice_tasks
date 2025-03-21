@@ -65,7 +65,7 @@ goals(ronaldo_silva, 3).
 goals(de_jong, 4).  
 goals(ruben_dias, 1).  
 goals(ter_stegen, 0). 
-=======
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Teams Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Team(Name, Country, Num_of_winning_times)

@@ -12,14 +12,14 @@ member_in_list(X,[_|T]) :-
 % task 1
 
 players_in_team(Team,L):-
-    find_players_in_team(Team, [], L).
+    find_players_in_team(Team, [], L),!.
 
 find_players_in_team(Team,Member_list,L):-
     player(Player,Team,_),
     \+ member_in_list(Player,Member_list),
-    New_list = [Player | Member_list],!,
+    append(Member_list, [Player], New_list),
     find_players_in_team(Team,New_list,L).
-find_players_in_team(_,L,L).
+find_players_in_team(_,L,L):-!.
 
 % __________________________________________________________________ %
 
@@ -60,22 +60,22 @@ most_successful_team(T) :-
 % task 4
 
 matches_of_team(Team, L) :-
-    find_matches_of_team(Team, [], L).
+    find_matches_of_team(Team, [], L),!.
 
 find_matches_of_team(Team, Matches_list, L) :-
     match(Team, Opponent, G1, G2),
     \+ member_in_list((Team, Opponent, G1, G2), Matches_list),
-    NewList = [(Team, Opponent, G1, G2) | Matches_list],
-    !,
-    find_matches_of_team(Team, NewList, L).
+    append(Matches_list, [(Team, Opponent, G1, G2)], New_list), 
+    find_matches_of_team(Team, New_list, L).
 
 find_matches_of_team(Team, Matches_list, L) :-
     match(Opponent, Team, G1, G2),
     \+ member_in_list((Opponent, Team, G1, G2), Matches_list),
-    NewList = [(Opponent, Team, G1, G2) | Matches_list],
-    !,
-    find_matches_of_team(Team, NewList, L).
-find_matches_of_team(_, L, L):- !.
+    append(Matches_list, [(Opponent, Team, G1, G2)], New_list), 
+    find_matches_of_team(Team, New_list, L).
+
+find_matches_of_team(_, L, L):-!.
+
 
 % __________________________________________________________________ %
 
@@ -195,4 +195,3 @@ most_common_position_in_team(Team, Pos) :-
     make_frequency_list(List,ResultList), % pass the position list to get the frequency list
     get_max_record(ResultList,[_,Pos]), % pass the frequency list to get the max_record, and takes the position only
     !.
-

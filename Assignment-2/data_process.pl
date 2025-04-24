@@ -11,21 +11,32 @@ make_positions_row([p|Rest], RowIndex, ColumnIndex) :-
     NewIndex is ColumnIndex + 1,
     make_positions_row(Rest, RowIndex, NewIndex).
 
-make_positions_row([d|Rest], RowIndex, ColumnIndex) :-
-    assertz(drone(RowIndex, ColumnIndex)),
+make_positions_row([Element|Rest], RowIndex, ColumnIndex) :-
+    (
+        % if -> then ; else
+        Element = d -> assertz(drone(RowIndex, ColumnIndex)) ;
+        Element = p -> assertz(delivery(RowIndex, ColumnIndex)) ;
+        Element = o -> assertz(obstacle(RowIndex, ColumnIndex)) ;
+        Element = e -> assertz(empty(RowIndex, ColumnIndex))
+    ),
     NewIndex is ColumnIndex + 1,
     make_positions_row(Rest, RowIndex, NewIndex).
 
+% make_positions_row([d|Rest], RowIndex, ColumnIndex) :-
+%     assertz(drone(RowIndex, ColumnIndex)),
+%     NewIndex is ColumnIndex + 1,
+%     make_positions_row(Rest, RowIndex, NewIndex).
 
-make_positions_row([o|Rest], RowIndex, ColumnIndex) :-
-    assertz(obstacle(RowIndex, ColumnIndex)),
-    NewIndex is ColumnIndex + 1,
-    make_positions_row(Rest, RowIndex, NewIndex).
 
-make_positions_row([e|Rest], RowIndex, ColumnIndex) :-
-    assertz(empty(RowIndex, ColumnIndex)),
-    NewIndex is ColumnIndex + 1,
-    make_positions_row(Rest, RowIndex, NewIndex).
+% make_positions_row([o|Rest], RowIndex, ColumnIndex) :-
+%     assertz(obstacle(RowIndex, ColumnIndex)),
+%     NewIndex is ColumnIndex + 1,
+%     make_positions_row(Rest, RowIndex, NewIndex).
+
+% make_positions_row([e|Rest], RowIndex, ColumnIndex) :-
+%     assertz(empty(RowIndex, ColumnIndex)),
+%     NewIndex is ColumnIndex + 1,
+%     make_positions_row(Rest, RowIndex, NewIndex).
 
 
 process_grid(Grid) :-

@@ -40,19 +40,21 @@ team_count_by_country(_,Count,Count,_).
 % __________________________________________________________________ %
 
 % task 3
-
-all_wins(List) :-
-    findall(Wins, team(_, _, Wins), List).
-
-max_wins(Max) :-
-    all_wins(List),
-    max_list(List, Max).
-
+% Find the team with the most championship titles
+%
+% find the first team and save his wins
+% start comparing his wins with all other teams
+% if he is the greatest among all:
+%    continue to the cut operator (i.e. he is the greatest team)
+% else:
+%    the \+ fails, you backtrack to the previous line, and start
+%    comparing a new team with all other teams
+%
+% time complexity: O(N^2) check every team with all other teams
+% space complexity: O(N) recursion stack
 most_successful_team(T) :-
-    max_wins(Max),
-
     team(T, _, Wins),
-    Wins =:= Max,
+    \+ (team(_, _, NewWins), NewWins > Wins),
     !.
 
 % __________________________________________________________________ %
@@ -102,18 +104,17 @@ num_matches_of_team(_,Count,Count,_):-!.
 % __________________________________________________________________ %
 
 % task 6
-
-all_goals(List) :-
-    findall(Goals, goals(_, Goals), List).
-
-max_goal(Max) :-
-    all_goals(List),
-    max_list(List, Max).
-
+% Find the top goal scorer in the tournament
+%
+% Find a player P
+% Check if his goals are greater than all players:
+%     if true:
+%         continue to the cut operator
+%     else:
+%         this branch fails, and you backtrack
 top_scorer(P) :-
-    max_goal(Max),
-    goals(P, G),
-    G =:= Max,
+    goals(P, Goals),
+    \+ (goals(_, NewGoals), NewGoals > Goals),
     !.
 
 % __________________________________________________________________ %

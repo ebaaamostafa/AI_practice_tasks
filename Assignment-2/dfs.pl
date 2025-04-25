@@ -31,4 +31,16 @@ move((X,Y), (NewX,NewY), Visited) :-
 
 % base case
 dfs((X,Y),Visited) :-
-    \+ move((X,Y), (NewX,NewY), Visited).
+    \+ move((X,Y), (_,_), Visited).
+
+dfs((X,Y),Path,NumOfDelivers) :-
+    move((X,Y), (NewX,NewY), Path),
+    valid_move((NewX,NewY), Path),
+    (
+        delivery(NewX,NewY) ->
+        NewNumOfDelivers is NumOfDelivers + 1 ; 
+        NewNumOfDelivers = NumOfDelivers
+    ),
+    dfs((NewX,NewY), [(NewX,NewY)|Path], NewNumOfDelivers).
+
+

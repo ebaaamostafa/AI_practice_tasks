@@ -1,15 +1,32 @@
+process_grid(Grid) :-
+    % delete all old facts
+    retractall(drone(_,_)),
+    retractall(obstacle(_,_)),
+    retractall(delivery(_,_)),
+    retractall(grid_size(_,_)),
+
+    % get the size of the grid
+    length(Grid, RowLength),
+    Grid = [FirstRow|_],
+    length(FirstRow, ColumnLength),
+
+    % make a new facts for the grid size
+    assertz(grid_size(RowLength, ColumnLength)),
+
+    % extracting the positions of objects
+    make_positions(Grid,0).
+
+
+
+% separate each row, assign its index and process its elements
 make_positions([],_).
 make_positions([Row|Rest],Index) :-
     make_positions_row(Row,Index,0),
     NextIndex is Index + 1,
     make_positions(Rest,NextIndex).
 
+% takes a row and its index, and process each element and make a fact for it
 make_positions_row([], _, _).
-
-make_positions_row([p|Rest], RowIndex, ColumnIndex) :-
-    assertz(delivery(RowIndex, ColumnIndex)),
-    NewIndex is ColumnIndex + 1,
-    make_positions_row(Rest, RowIndex, NewIndex).
 
 make_positions_row([Element|Rest], RowIndex, ColumnIndex) :-
     (
@@ -21,35 +38,3 @@ make_positions_row([Element|Rest], RowIndex, ColumnIndex) :-
     ),
     NewIndex is ColumnIndex + 1,
     make_positions_row(Rest, RowIndex, NewIndex).
-
-% make_positions_row([d|Rest], RowIndex, ColumnIndex) :-
-%     assertz(drone(RowIndex, ColumnIndex)),
-%     NewIndex is ColumnIndex + 1,
-%     make_positions_row(Rest, RowIndex, NewIndex).
-
-
-% make_positions_row([o|Rest], RowIndex, ColumnIndex) :-
-%     assertz(obstacle(RowIndex, ColumnIndex)),
-%     NewIndex is ColumnIndex + 1,
-%     make_positions_row(Rest, RowIndex, NewIndex).
-
-% make_positions_row([e|Rest], RowIndex, ColumnIndex) :-
-%     assertz(empty(RowIndex, ColumnIndex)),
-%     NewIndex is ColumnIndex + 1,
-%     make_positions_row(Rest, RowIndex, NewIndex).
-
-
-process_grid(Grid) :-
-    % delete all old facts
-    retractall(drone(_,_)),
-    retractall(obstacle(_,_)),
-    retractall(delivery(_,_)),
-    retractall(grid_size(_,_)),
-
-    length(Grid, RowLength),
-    Grid = [FirstRow|_],
-    length(FirstRow, ColumnLength),
-    % makes new facts
-    assertz(grid_size(RowLength, ColumnLength)),
-
-    make_positions(Grid,0).

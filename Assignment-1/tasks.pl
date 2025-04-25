@@ -1,4 +1,4 @@
-%:-consult(league_data).
+:-consult('league_data.pl').
 
 
 % check for an element if it is a member of a list

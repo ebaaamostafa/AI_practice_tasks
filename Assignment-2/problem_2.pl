@@ -1,0 +1,39 @@
+% process_grid/1 (input grid)
+:- consult('data_process.pl').
+
+% valid_move/2 ((x,y), visited)
+% Movement rules: left/2 right/2 up/2 down/2
+:- consult('problem_1.pl').
+
+state(Position, VisitedDeliveries).
+
+% End goal is to visit all delivery points
+goal_state(VisitedDeliveries) :-
+    findall((X,Y), delivery(X,Y), AllDeliveries),
+    subset(AllDeliveries, VisitedDeliveries).
+
+% calculates distance between two points
+distance((X1,Y1),(X2,Y2),D) :-
+    D is abs(X1-X2) + abs(Y1-Y2).
+
+heuristic(state((X, Y), Visited), H) :-
+    % find all points not visited & store them in RemainingDeliveries
+    findall(
+        (DX,DY),
+        (delivery(DX,DY),
+        \+ member((DX,DY), Visited)),
+        RemainingDeliveries
+    ),
+     % if -> then ; else
+    (RemainingDeliveries = [] -> H = 0; % if no remaining deliveries, then H = 0
+    % else
+    findall( % find all
+        Dist,
+        (
+            member((DX,DY), RemainingDeliveries), % RemainginDeliveries
+            distance((X,Y),(DX,DY),Dist) % distances
+        ),
+        Dists), % and store them in Ditsts list
+    min_list(Dists, H) % extract min distance and store in H
+    ).
+

@@ -36,6 +36,7 @@ move(X, Y, NewX, NewY, Visited, EIn, EOut) :-
     (
         left(Curr, Next, EIn, EOut);
         right(Curr, Next, EIn, EOut);
+
         up(Curr, Next, EIn, EOut);
         down(Curr, Next, EIn, EOut)
     ),
@@ -53,14 +54,12 @@ goal_state(VisitedDeliveries) :-
 distance((X1,Y1),(X2,Y2),D) :-
     D is abs(X1-X2) + abs(Y1-Y2).
 
-heuristic(state((X, Y), Visited), H) :-
-    % find all points not visited & store them in RemainingDeliveries
+heuristic(state((X, Y), Visited), H) :-    % find all points not visited & store them in RemainingDeliveries
     findall(
         (DX,DY),
         (delivery(DX,DY),
         \+ member((DX,DY), Visited)),
-        RemainingDeliveries
-    ),
+        RemainingDeliveries),
      % if -> then ; else
     (RemainingDeliveries = [] -> H = 0; % if no remaining deliveries, then H = 0
     % else

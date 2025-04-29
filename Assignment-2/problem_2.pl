@@ -17,33 +17,40 @@ valid_move((X,Y),Visited, E) :-
 
 left((X,Y), (X,NewY), EIn, EOut) :-
     NewY is Y - 1,
-    EOut is EIn - 1.
+    update_energy((X,NewY), EIn, EOut).
 
 right((X,Y), (X,NewY), EIn, EOut) :-
     NewY is Y + 1,
-    EOut is EIn - 1.
+    update_energy((X,NewY), EIn, EOut).
 
 up((X,Y), (NewX,Y), EIn, EOut) :-
     NewX is X - 1,
-    EOut is EIn - 1.
+    update_energy((NewX,Y), EIn, EOut).
 
 down((X,Y), (NewX,Y), EIn, EOut) :-
     NewX is X + 1,
-    EOut is EIn - 1.
+    update_energy((NewX,Y), EIn, EOut).
+
 
 move(X, Y, NewX, NewY, Visited, EIn, EOut) :-
-    Curr = (X,Y),
-    (
-        left(Curr, Next, EIn, EOut);
-        right(Curr, Next, EIn, EOut);
-
-        up(Curr, Next, EIn, EOut);
-        down(Curr, Next, EIn, EOut)
-    ),
-    Next = (NewX, NewY),
+    left(X,Y, X,NewY, EIn, EOut);
+    right(X,Y, X,NewY, EIn, EOut);
+    up(X,Y, NewX,Y, EIn, EOut);
+    down(X,Y, NewX,Y, EIn, EOut),
     valid_move((NewX, NewY), Visited, EOut).
 
-state(Position, VisitedDeliveries).
+update_energy(Pos, _, NewE) :-
+    recharge(X, Y),
+    Pos = (X, Y),
+    energy_limit(NewE), !.
+
+update_energy(_, EIn, EOut) :-
+    EOut is EIn - 1.
+
+
+
+
+state(Position, VisitedDeliveries, Energy).
 
 % End goal is to visit all delivery points
 goal_state(VisitedDeliveries) :-

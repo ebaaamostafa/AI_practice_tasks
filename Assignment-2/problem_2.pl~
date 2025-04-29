@@ -1,11 +1,48 @@
 % process_grid/1 (input grid)
 :- consult('data_process.pl').
-
-% valid_move/2 ((x,y), visited)
-% Movement rules: left/2 right/2 up/2 down/2
 :- consult('problem_1.pl').
 
-state((X, Y), VisitedDeliveries).
+% valid_move/2 ((x,y), visited, Energy)
+valid_move((X,Y),Visited, E) :-
+    \+ member((X,Y), Visited),
+    X >= 0,
+    Y >= 0,
+    grid_size(R,C),
+    X < R,
+    Y < C,
+    \+ obstacle(X,Y),
+    E > 0.
+% Movement rules with energy handling:
+% Each move reduces energy by 1.
+
+left((X,Y), (X,NewY), EIn, EOut) :-
+    NewY is Y - 1,
+    EOut is EIn - 1.
+
+right((X,Y), (X,NewY), EIn, EOut) :-
+    NewY is Y + 1,
+    EOut is EIn - 1.
+
+up((X,Y), (NewX,Y), EIn, EOut) :-
+    NewX is X - 1,
+    EOut is EIn - 1.
+
+down((X,Y), (NewX,Y), EIn, EOut) :-
+    NewX is X + 1,
+    EOut is EIn - 1.
+
+move(X, Y, NewX, NewY, Visited, EIn, EOut) :-
+    Curr = (X,Y),
+    (
+        left(Curr, Next, EIn, EOut);
+        right(Curr, Next, EIn, EOut);
+        up(Curr, Next, EIn, EOut);
+        down(Curr, Next, EIn, EOut)
+    ),
+    Next = (NewX, NewY),
+    valid_move((NewX, NewY), Visited, EOut).
+
+state(Position, VisitedDeliveries).
 
 % End goal is to visit all delivery points
 goal_state(VisitedDeliveries) :-
@@ -36,3 +73,4 @@ heuristic(state((X, Y), Visited), H) :-
         Dists), % and store them in Ditsts list
     min_list(Dists, H) % extract min distance and store in H
     ).
+

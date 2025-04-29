@@ -1,5 +1,21 @@
 process_grid(Grid) :-
-    process_grid(Grid,0).
+    % delete all old facts
+    retractall(drone(_,_)),
+    retractall(obstacle(_,_)),
+    retractall(delivery(_,_)),
+    retractall(grid_size(_,_)),
+
+    % get the size of the grid
+    length(Grid, RowLength),
+    Grid = [FirstRow|_],
+    length(FirstRow, ColumnLength),
+
+    % make a new facts for the grid size
+    assertz(grid_size(RowLength, ColumnLength)),
+
+    % extracting the positions of objects
+    make_positions(Grid,0).
+
 
 process_grid(Grid, EnergyLimit) :-
     % delete all old facts
@@ -8,7 +24,6 @@ process_grid(Grid, EnergyLimit) :-
     retractall(delivery(_,_)),
     retractall(grid_size(_,_)),
     retractall(energy_limit(_)),
-    retractall(recharge(_,_)),
 
     % get the size of the grid
     length(Grid, RowLength),

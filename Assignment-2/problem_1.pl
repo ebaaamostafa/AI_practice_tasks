@@ -62,4 +62,62 @@ solve(Grid,OptimalPath,MaxDelivers) :-
     process_grid(Grid),
     drone(X,Y),
     findall(Delivers-Paths, dfs((X,Y), [(X,Y)], 0, Delivers, Paths), AllPaths),
-    max_member(MaxDelivers-OptimalPath, AllPaths).
+    max_member(MaxDelivers-OptimalPath, AllPaths),
+    writeln('--- Drone Route ---'),
+    draw_grid(Grid),
+    drawAllPath(Grid , OptimalPath).
+    
+
+
+drawAllPath(Grid, []) :-
+    writeln('--- Final Path ---'),
+    draw_grid(Grid),
+    writeln('Final path reached!').
+
+drawAllPath(Grid, [(X, Y) | Rest]) :-
+    update_grid(Grid, X, Y, UpdatedGrid), 
+    draw_grid(UpdatedGrid),nl,
+    drawAllPath(UpdatedGrid, Rest). 
+
+update_grid([Row | Rest], 0, Y, [UpdatedRow | Rest]) :-
+    update_row(Row, Y, UpdatedRow).
+
+
+update_grid([Row | Rest], X, Y, [Row | UpdatedRest]) :-
+    X > 0, 
+    NewX is X - 1,
+    update_grid(Rest, NewX, Y, UpdatedRest).
+
+update_row([_ | Rest], 0, [w | Rest]).
+update_row([Cell | Rest], Y, [Cell | UpdatedRest]) :-
+    Y > 0,
+    NewY is Y - 1,
+    update_row(Rest, NewY, UpdatedRest).
+    
+print_cell(d) :-
+    write('D').
+
+print_cell(p) :-
+    write('P').
+
+print_cell(w) :-
+    write('*').
+
+print_cell(o) :-
+    write('O').
+
+print_cell(e) :-
+    write('-').
+
+print_row([]).
+print_row([F | R]):-
+    print_cell(F),
+    write(" "),
+    print_row(R).
+
+
+draw_grid([]).
+
+draw_grid([R | T]):-
+    print_row(R),nl
+    ,draw_grid(T).

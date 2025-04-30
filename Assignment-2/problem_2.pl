@@ -11,11 +11,10 @@ valid_move((X,Y),Visited, E) :-
     X < R,
     Y < C,
     \+ obstacle(X,Y),
-    E > 0.
+    E >= 0.
 
-update_energy(Pos, _, NewE) :-
-    recharge(X, Y),
-    Pos = (X, Y), !,
+update_energy((X,Y), _, NewE) :-
+    recharge(X, Y), !,
     energy_limit(NewE).
 
 update_energy(_, EIn, EOut) :- EOut is EIn - 1.
@@ -50,7 +49,10 @@ distance((X1,Y1),(X2,Y2),D) :-
 % End goal is to visit all delivery points
 goal_state(VisitedDeliveries) :-
     findall((X,Y), delivery(X,Y), AllDeliveries),
-    subset(AllDeliveries, VisitedDeliveries).
+    %subset(AllDeliveries, VisitedDeliveries).
+sort(VisitedDeliveries, VisitedSorted),
+    sort(AllDeliveries, AllSorted),
+    VisitedSorted == AllSorted.
 
 state(Position, VisitedDeliveries, Energy).
 
@@ -78,23 +80,30 @@ node(State, Path, Cost, F).
 
 % a_star(open, closed, path, cost)
 a_star([node(state(_, Visited, _), Path, Cost, _) | _], _, Path, Cost):-
-    goal_state(Visited).
+    goal_state(Visited),!.
 a_star([node(state((X,Y), Visited, E), Path, G, _) | MoreOpen], Closed, FinalPath, TotalCost) :-
     findall(
         node(state((NewX, NewY), NewVisited, NewE), [(NewX, NewY)|Path], NewG, F),
         (
             move(X, Y, NewX, NewY, Visited, E, NewE),
-            \+ member(state((NewX, NewY), _, _), Closed),
-            (delivery(NewX, NewY), \+ member((NewX, NewY), Visited)
-                -> NewVisited = [(NewX, NewY)|Visited]; NewVisited = Visited),
+	   (delivery(NewX, NewY), \+ member((NewX, NewY), Visited)
+                -> NewVisited = [(NewX, NewY)|Visited]; NewVisited = Visited),	
+	   sort(NewVisited, SortedVisited),
+	   \+ member(state((NewX, NewY), SortedVisited, NewE), Closed),
+    
             NewG is G + 1,
             heuristic(state((NewX, NewY), NewVisited, NewE), H),
             F is NewG + H
+            % Log the current step
+            %write('Expanding: '), write([(NewX, NewY)|Path]), nl, % log path
+            %write('Current Cost: '), write(NewG), nl, % log current cost
+            %write('Estimated Cost (f): '), write(F), nl % log estimated cost (f)
         ),
         Children),
     append(MoreOpen, Children, NewOpenUnsorted),
     sort(4, @=<, NewOpenUnsorted, NewOpen),
-    a_star(NewOpen, [state((X,Y), Visited, E)|Closed], FinalPath, TotalCost).
+    sort(Visited, SortedVisited),
+    a_star(NewOpen, [state((X,Y), SortedVisited, E)|Closed], FinalPath, TotalCost).
 
 
 solve(Grid, EnergyLimit, Path, Cost) :-
@@ -103,7 +112,5 @@ solve(Grid, EnergyLimit, Path, Cost) :-
     Start = state((X,Y), [], EnergyLimit),
     heuristic(Start, H),
     a_star([node(Start, [(X,Y)], 0, H)], [], RevPath, Cost),
-    reverse(RevPath, Path).
-
-
-
+    reverse(RevPath, Path),
+    write('Full Path: '), write(Path), nl.

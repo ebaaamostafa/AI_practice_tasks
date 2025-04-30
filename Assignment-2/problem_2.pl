@@ -11,11 +11,10 @@ valid_move((X,Y),Visited, E) :-
     X < R,
     Y < C,
     \+ obstacle(X,Y),
-    E > 0.
+    E >= 0.
 
 update_energy(Pos, _, NewE) :-
-    recharge(X, Y),
-    Pos = (X, Y), !,
+    recharge(X, Y), !,
     energy_limit(NewE).
 
 update_energy(_, EIn, EOut) :- EOut is EIn - 1.
@@ -84,7 +83,7 @@ a_star([node(state((X,Y), Visited, E), Path, G, _) | MoreOpen], Closed, FinalPat
         node(state((NewX, NewY), NewVisited, NewE), [(NewX, NewY)|Path], NewG, F),
         (
             move(X, Y, NewX, NewY, Visited, E, NewE),
-            \+ member(state((NewX, NewY), _, _), Closed),
+            \+ member(state((NewX, NewY), NewVisited, NewE), Closed),
             (delivery(NewX, NewY), \+ member((NewX, NewY), Visited)
                 -> NewVisited = [(NewX, NewY)|Visited]; NewVisited = Visited),
             NewG is G + 1,

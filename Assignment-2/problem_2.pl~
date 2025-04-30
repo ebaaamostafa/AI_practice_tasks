@@ -11,11 +11,10 @@ valid_move((X,Y),Visited, E) :-
     X < R,
     Y < C,
     \+ obstacle(X,Y),
-    E > 0.
+    E >= 0.
 
 update_energy(Pos, _, NewE) :-
-    recharge(X, Y),
-    Pos = (X, Y), !,
+    recharge(X, Y), !,
     energy_limit(NewE).
 
 update_energy(_, EIn, EOut) :- EOut is EIn - 1.
@@ -52,7 +51,7 @@ goal_state(VisitedDeliveries) :-
     findall((X,Y), delivery(X,Y), AllDeliveries),
     subset(AllDeliveries, VisitedDeliveries).
 
-% state(Position, VisitedDeliveries, Energy).
+state(Position, VisitedDeliveries, Energy).
 
 heuristic(state((X, Y), Visited, _), H) :-    % find all points not visited & store them in RemainingDeliveries
     findall(
@@ -73,7 +72,7 @@ heuristic(state((X, Y), Visited, _), H) :-    % find all points not visited & st
     min_list(Dists, H) % extract min distance and store in H
     ).
 
-% node(State, Path, Cost, F).
+node(State, Path, Cost, F).
 % f(n) = g(n) + h(n) // (cost from start to node + heuristic value)
 
 % a_star(open, closed, path, cost)
@@ -84,12 +83,16 @@ a_star([node(state((X,Y), Visited, E), Path, G, _) | MoreOpen], Closed, FinalPat
         node(state((NewX, NewY), NewVisited, NewE), [(NewX, NewY)|Path], NewG, F),
         (
             move(X, Y, NewX, NewY, Visited, E, NewE),
-            \+ member(state((NewX, NewY), _, _), Closed),
+            \+ member(state((NewX, NewY), NewVisited, NewE), Closed),
             (delivery(NewX, NewY), \+ member((NewX, NewY), Visited)
                 -> NewVisited = [(NewX, NewY)|Visited]; NewVisited = Visited),
             NewG is G + 1,
             heuristic(state((NewX, NewY), NewVisited, NewE), H),
             F is NewG + H
+            % Log the current step
+            %write('Expanding: '), write([(NewX, NewY)|Path]), nl, % log path
+            %write('Current Cost: '), write(NewG), nl, % log current cost
+            %write('Estimated Cost (f): '), write(F), nl % log estimated cost (f)
         ),
         Children),
     append(MoreOpen, Children, NewOpenUnsorted),
@@ -104,6 +107,3 @@ solve(Grid, EnergyLimit, Path, Cost) :-
     heuristic(Start, H),
     a_star([node(Start, [(X,Y)], 0, H)], [], RevPath, Cost),
     reverse(RevPath, Path).
-
-
-

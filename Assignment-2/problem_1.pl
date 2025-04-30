@@ -69,30 +69,32 @@ solve(Grid,OptimalPath,MaxDelivers) :-
     
 
 
-drawAllPath(Grid, []) :-
+drawAllPath(Grid, [( _ , _)]) :-
     writeln('--- Final Path ---'),
     draw_grid(Grid),
-    writeln('Final path reached!').
+    writeln('Final path reached!'),!.
 
-drawAllPath(Grid, [(X, Y) | Rest]) :-
-    update_grid(Grid, X, Y, UpdatedGrid), 
-    draw_grid(UpdatedGrid),nl,
-    drawAllPath(UpdatedGrid, Rest). 
-
-update_grid([Row | Rest], 0, Y, [UpdatedRow | Rest]) :-
-    update_row(Row, Y, UpdatedRow).
+drawAllPath(Grid, [(A, B),(C, D) | Rest]) :-
+    nl,update_grid(Grid, A, B, w , TempGrid), 
+    update_grid(TempGrid, C, D, d , UpdatedGrid), 
+    draw_grid(UpdatedGrid), nl,
+    drawAllPath(UpdatedGrid, [(C , D) | Rest]).
 
 
-update_grid([Row | Rest], X, Y, [Row | UpdatedRest]) :-
+update_grid([Row | Rest], 0, Y, Char, [UpdatedRow | Rest]) :-
+    update_row(Row, Y, Char, UpdatedRow),!.
+
+update_grid([Row | Rest], X, Y, Char, [Row | UpdatedRest]) :-
     X > 0, 
     NewX is X - 1,
-    update_grid(Rest, NewX, Y, UpdatedRest).
+    update_grid(Rest, NewX, Y, Char, UpdatedRest).
 
-update_row([_ | Rest], 0, [w | Rest]).
-update_row([Cell | Rest], Y, [Cell | UpdatedRest]) :-
+% update_row(+Row, +Y, +Char, -UpdatedRow)
+update_row([_ | Rest], 0, Char, [Char | Rest]).
+update_row([Cell | Rest], Y, Char, [Cell | UpdatedRest]) :-
     Y > 0,
     NewY is Y - 1,
-    update_row(Rest, NewY, UpdatedRest).
+    update_row(Rest, NewY, Char, UpdatedRest).
     
 print_cell(d) :-
     write('D').

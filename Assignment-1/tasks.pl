@@ -7,6 +7,11 @@ member_in_list(X,[X|_]).
 member_in_list(X,[_|T]) :-
     member_in_list(X,T).
 
+append_lists([], L, L).
+append_lists([H|T], L2, [H|T3]) :-
+    append_lists(T, L2, T3).
+
+
 % __________________________________________________________________ %
 
 % task 1
@@ -17,7 +22,7 @@ players_in_team(Team,L):-
 find_players_in_team(Team,Member_list,L):-
     player(Player,Team,_),
     \+ member_in_list(Player,Member_list),
-    append(Member_list, [Player], New_list),
+    append_lists(Member_list, [Player], New_list),
     find_players_in_team(Team,New_list,L).
 find_players_in_team(_,L,L):-!.
 
@@ -67,13 +72,13 @@ matches_of_team(Team, L) :-
 find_matches_of_team(Team, Matches_list, L) :-
     match(Team, Opponent, G1, G2),
     \+ member_in_list((Team, Opponent, G1, G2), Matches_list),
-    append(Matches_list, [(Team, Opponent, G1, G2)], New_list), 
+    append_lists(Matches_list, [(Team, Opponent, G1, G2)], New_list), 
     find_matches_of_team(Team, New_list, L).
 
 find_matches_of_team(Team, Matches_list, L) :-
     match(Opponent, Team, G1, G2),
     \+ member_in_list((Opponent, Team, G1, G2), Matches_list),
-    append(Matches_list, [(Opponent, Team, G1, G2)], New_list), 
+    append_lists(Matches_list, [(Opponent, Team, G1, G2)], New_list), 
     find_matches_of_team(Team, New_list, L).
 
 find_matches_of_team(_, L, L):-!.
